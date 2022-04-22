@@ -1,41 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import Posts from "@components/Posts";
-import { useFilters } from "@hooks/useFilters";
-import { SortingType } from "../types";
-import axios, { Axios } from "axios";
+import { fetchPosts } from "../store/reducers/ActionCreators";
+import { RootState, useAppDispatch } from "store/store";
+import { useSelector } from "react-redux";
+import axios from "axios";
+
+import { store } from "../store/store";
 
 export const getStaticProps = async () => {
-  const response = await axios.get(`${process.env.API_HOST}/api/posts`);
+  const response = await axios.get(`https://dev.retnback.only.com.ru/api/news/list`);
   const data = await response.data;
+  console.log(data);
 
-  return {
-    props: { posts: data },
-  };
+  store.getState();
+
+  return { props: data };
 };
 
-const Home = ({ posts }) => {
-  const [isAscending, setIsAscending] = useState(true);
-  const [descriptionFilter, setDescriptionFilter] = useState("");
+const Home = () => {
+  const [type, setType] = useState("");
+  const [textFilter, setTextFilter] = useState("");
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = e.target;
-    setIsAscending(checked);
+  const dispatch = useAppDispatch();
+
+  const posts = useSelector((state: RootState) => state.postReducer.posts);
+
+  useEffect(() => {
+    dispatch<any>(fetchPosts({ type: type, search: textFilter }));
+  }, [textFilter, type, dispatch]);
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setType(value);
   };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setDescriptionFilter(value);
+    setTextFilter(value);
   };
-
-  const { result } = useFilters(posts, {
-    sort: isAscending ? SortingType.ASC : SortingType.DESC,
-    filter: {
-      name: "description",
-      value: descriptionFilter,
-    },
-  });
 
   return (
     <div className={styles.container}>
@@ -46,29 +50,22 @@ const Home = ({ posts }) => {
       </Head>
 
       <main className={styles.main}>
-        <div className={styles.inputs}>
-          <label className={styles.sort}>
-            Сортировка: &emsp; {isAscending ? "↑" : "↓"}
-            <input
-              type="checkbox"
-              checked={isAscending}
-              name="sort"
-              onChange={handleSortChange}
-              className={styles.sort__input}
-            />
-          </label>
+        <div className={styles.forms}>
+          <select name="type-filter" onChange={handleTypeChange} className={styles.select}>
+            <option value="new">new</option>
+            <option value="event">event</option>
+          </select>
           <label>
             Фильтрация постов по строке: &emsp;
             <input
               type="text"
-              value={descriptionFilter}
-              name="filter"
+              value={textFilter}
+              name="title-filter"
               onChange={handleFilterChange}
             />
           </label>
         </div>
-
-        <Posts posts={result} />
+        <Posts posts={posts} />
       </main>
 
       <footer className={styles.footer}></footer>

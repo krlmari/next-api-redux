@@ -8,19 +8,17 @@
   font-family: Courier New, monospace;
 }
 
-.inputs {
+.forms {
   display: flex;
   flex-direction: column;
   align-self: center;
   user-select: none;
 }
 
-.sort {
-  cursor: pointer;
-}
-
-.sort__input {
-  display: none;
+.select {
+  text-align: center;
+  width: 40%;
+  margin-bottom: 10px;
 }
 
 .footer {
@@ -39,8 +37,12 @@
 }
 
 @media (max-width: 580px) {
-  .inputs {
+  .forms {
     text-align: center;
     margin: 0 20px;
+  }
+
+  .select {
+    align-self: center;
   }
 }
