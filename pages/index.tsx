@@ -64,7 +64,7 @@ const Home = () => {
             <input
               type="text"
               value={textFilter}
-              name="title-filter"
+              name="text-filter"
               onChange={handleFilterChange}
             />
           </label>
