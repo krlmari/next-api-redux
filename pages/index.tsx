@@ -7,16 +7,20 @@ import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-import { store } from "../store/store";
-
 export const getStaticProps = async () => {
   const response = await axios.get(`https://dev.retnback.only.com.ru/api/news/list`);
-  const data = await response.data;
-  console.log(data);
 
-  store.getState();
-
-  return { props: data };
+  return {
+    props: {
+      initialReduxState: {
+        postReducer: {
+          posts: response.data.data,
+          isLoading: false,
+          error: "",
+        },
+      },
+    },
+  };
 };
 
 const Home = () => {
@@ -28,7 +32,7 @@ const Home = () => {
   const posts = useSelector((state: RootState) => state.postReducer.posts);
 
   useEffect(() => {
-    dispatch<any>(fetchPosts({ type: type, search: textFilter }));
+    dispatch(fetchPosts({ type: type, search: textFilter }));
   }, [textFilter, type, dispatch]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
